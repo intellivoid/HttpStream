@@ -1,0 +1,25 @@
+{
+    "package": {
+        "package_name": "net.intellivoid.http_stream",
+        "name": "HttpStream",
+        "version": "1.0.0.0",
+        "author": "Zi Xing Narrakas",
+        "organization": "Intellivoid Technologies",
+        "description": "Streams large files over HTTP without memory leaks",
+        "url": "https://github.com/Intellivoid/HttpStream",
+        "dependencies": [],
+        "configuration": {
+            "autoload_method": "generated_spl",
+            "main": null,
+            "post_installation": [],
+            "pre_installation": []
+        }
+    },
+    "components": [
+        {
+            "required": true,
+            "file": "HttpStream.php"
+        }
+    ],
+    "files": []
+}
