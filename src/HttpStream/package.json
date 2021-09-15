@@ -7,7 +7,14 @@
         "organization": "Intellivoid Technologies",
         "description": "Streams large files over HTTP without memory leaks",
         "url": "https://github.com/Intellivoid/HttpStream",
-        "dependencies": [],
+        "dependencies": [
+            {
+                "package": "net.intellivoid.mimelib",
+                "version": "latest",
+                "source": "default@github/intellivoid/MimeLib",
+                "required": true
+            }
+        ],
         "configuration": {
             "autoload_method": "generated_spl",
             "main": null,
@@ -18,8 +25,38 @@
     "components": [
         {
             "required": true,
+            "file": "Abstracts/StreamMode.php"
+        },
+        {
+            "required": true,
+            "file": "Classes/Utilities.php"
+        },
+        {
+            "required": true,
+            "file": "Exceptions/InvalidStreamSourceException.php"
+        },
+        {
+            "required": true,
+            "file": "Exceptions/OpenStreamException.php"
+        },
+        {
+            "required": true,
+            "file": "Exceptions/RequestRangeNotSatisfiableException.php"
+        },
+        {
+            "required": true,
+            "file": "Exceptions/UnsupportedStreamException.php"
+        },
+        {
+            "required": true,
             "file": "HttpStream.php"
+        },
+        {
+            "required": true,
+            "file": "Objects/HttpResponse.php"
         }
     ],
-    "files": []
+    "files": [
+        "package.json"
+    ]
 }
