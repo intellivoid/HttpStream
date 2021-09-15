@@ -222,21 +222,40 @@
         private function start_stream()
         {
             $i = $this->start;
-            $b = 0;
             ob_get_clean();
             set_time_limit(0);
             while(!feof($this->stream) && $i <= $this->end)
             {
-                $b += 1;
                 $bytesToRead = $this->buffer;
                 if(($i+$bytesToRead) > $this->end)
                     $bytesToRead = $this->end - $i + 1;
 
                 $data = fread($this->stream, $bytesToRead);
+                $receivedBytes = strlen($data); // Keep track of the missing bytes
+                $supportedBandwidth = $receivedBytes; // Remember the value
+
+                // Account that the source cannot the requested bytes
+                if($receivedBytes < $bytesToRead)
+                {
+                    $bytesLeft = $bytesToRead - $receivedBytes;
+
+                    // First get the missing bytes before the next iteration
+                    while($bytesLeft <= 0)
+                    {
+                        $data .= fread($this->stream, $bytesLeft);
+                        $receivedBytes = strlen($data);
+                        $bytesLeft = $bytesToRead - $receivedBytes;
+                        if($bytesLeft < 0)
+                            $bytesLeft = 0;
+                    }
+
+                    // Finally, set the new buffer size for the next itration
+                    $this->setBuffer($supportedBandwidth);
+                }
+
                 echo $data;
                 flush();
                 $i += $bytesToRead;
-
             }
         }
 
