@@ -102,7 +102,6 @@
          * @param bool $as_attachment Indicates if the response should be treated as an attachment or not (Download or Stream)
          * @return HttpResponse
          * @throws UnsupportedStreamException
-         * @noinspection PhpStrFunctionsInspection
          * @noinspection PhpUnusedLocalVariableInspection
          * @noinspection DuplicatedCode
          */
@@ -172,7 +171,6 @@
          * Prepares the current stream and stream variables
          *
          * @throws RequestRangeNotSatisfiableException
-         * @noinspection PhpStrFunctionsInspection
          * @noinspection DuplicatedCode
          * @noinspection PhpUnusedLocalVariableInspection
          */
@@ -282,10 +280,11 @@
          *
          * @param bool $include_headers
          * @param bool $as_attachment
+         * @param array $custom_headers
          * @throws RequestRangeNotSatisfiableException
          * @throws UnsupportedStreamException
          */
-        public function stream(bool $include_headers=true, bool $as_attachment=true)
+        public function stream(bool $include_headers=true, bool $as_attachment=true, array $custom_headers=[])
         {
             $headers = $this->getHttpResponse($as_attachment);
 
@@ -303,6 +302,11 @@
                         header("$header: $header_value");
                     }
 
+                    foreach($custom_headers as $header => $header_value)
+                    {
+                        header("$header: $header_value");
+                    }
+
                     return;
                 }
 
@@ -313,6 +317,11 @@
             {
                 http_response_code($headers->ResponseCode);
                 foreach($headers as $header => $header_value)
+                {
+                    header("$header: $header_value");
+                }
+
+                foreach($custom_headers as $header => $header_value)
                 {
                     header("$header: $header_value");
                 }
@@ -338,26 +347,19 @@
         }
 
         /**
-         * Releases the file handle resource when destructing the file
-         */
-        public function __destruct()
-        {
-            fclose($this->stream);
-        }
-
-        /**
          * Streams the given location as a HTTP response
          *
          * @param string $location
          * @param bool $as_attachment
+         * @param array $headers
          * @throws OpenStreamException
          * @throws RequestRangeNotSatisfiableException
          * @throws UnsupportedStreamException
          */
-        public static function streamToHttp(string $location, bool $as_attachment=false)
+        public static function streamToHttp(string $location, bool $as_attachment=false, array $headers=[])
         {
             $HttpStream = new HttpStream($location);
-            $HttpStream->stream(true, $as_attachment);
+            $HttpStream->stream(true, $as_attachment, $headers);
         }
 
         /**
@@ -372,5 +374,13 @@
         {
             $HttpStream = new HttpStream($location);
             $HttpStream->stream(false);
+        }
+
+        /**
+         * Releases the file handle resource when destructing the file
+         */
+        public function __destruct()
+        {
+            fclose($this->stream);
         }
     }
