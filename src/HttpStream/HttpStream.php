@@ -280,13 +280,12 @@
         /**
          * Begins the file stream
          *
-         * @param bool $exit
          * @param bool $include_headers
          * @param bool $as_attachment
          * @throws RequestRangeNotSatisfiableException
          * @throws UnsupportedStreamException
          */
-        public function stream(bool $exit=true, bool $include_headers=true, bool $as_attachment=true)
+        public function stream(bool $include_headers=true, bool $as_attachment=true)
         {
             $headers = $this->getHttpResponse($as_attachment);
 
@@ -302,11 +301,6 @@
                     foreach($headers as $header => $header_value)
                     {
                         header("$header: $header_value");
-                    }
-
-                    if($exit)
-                    {
-                        exit();
                     }
 
                     return;
@@ -325,11 +319,6 @@
             }
 
             $this->start_stream();
-
-            if($exit)
-            {
-                exit();
-            }
         }
 
         /**
@@ -354,5 +343,34 @@
         public function __destruct()
         {
             fclose($this->stream);
+        }
+
+        /**
+         * Streams the given location as a HTTP response
+         *
+         * @param string $location
+         * @param bool $as_attachment
+         * @throws OpenStreamException
+         * @throws RequestRangeNotSatisfiableException
+         * @throws UnsupportedStreamException
+         */
+        public static function streamToHttp(string $location, bool $as_attachment=false)
+        {
+            $HttpStream = new HttpStream($location);
+            $HttpStream->stream(true, $as_attachment);
+        }
+
+        /**
+         * Streams the given location to the stdout
+         *
+         * @param string $location
+         * @throws OpenStreamException
+         * @throws RequestRangeNotSatisfiableException
+         * @throws UnsupportedStreamException
+         */
+        public static function streamToStdout(string $location)
+        {
+            $HttpStream = new HttpStream($location);
+            $HttpStream->stream(false);
         }
     }
