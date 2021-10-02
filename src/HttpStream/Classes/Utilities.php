@@ -6,9 +6,17 @@
 
     use Exception;
     use HttpStream\Abstracts\StreamMode;
+    use HttpStream\Exceptions\OpenStreamException;
     use HttpStream\Exceptions\UnsupportedStreamException;
     use HttpStream\HttpStream;
     use MimeLib\MimeLib;
+    use function extension_loaded;
+    use function feof;
+    use function fread;
+    use function ini_get;
+    use function is_string;
+    use function mb_strlen;
+    use function strlen;
 
     class Utilities
     {
@@ -90,7 +98,6 @@
          * @param HttpStream $httpStream
          * @return string
          * @throws UnsupportedStreamException
-         * @noinspection PhpUnusedLocalVariableInspection
          */
         public static function getContentType(HttpStream $httpStream): string
         {
@@ -172,5 +179,64 @@
             }
 
             return $response_headers;
+        }
+
+        /**
+         * Determines the string length
+         *
+         * @param $str
+         * @return false|int
+         * @noinspection SpellCheckingInspection
+         */
+        public static function ourStrlen($str)
+        {
+            static $exists = null;
+            if ($exists === null)
+            {
+                $exists =
+                    extension_loaded('mbstring') &&
+                    ini_get('mbstring.func_overload') !== false &&
+                    (int) ini_get('mbstring.func_overload') & defined('MB_OVERLOAD_STRING');
+            }
+
+            if ($exists)
+            {
+                return mb_strlen($str, '8bit');
+            }
+
+            return strlen($str);
+        }
+
+        /**
+         * Reads the number of requested bytes
+         *
+         * @param $stream
+         * @param $num_bytes
+         * @param bool $end_of_file_check
+         * @return string
+         * @throws OpenStreamException
+         */
+        public static function readBytes($stream, $num_bytes, bool $end_of_file_check=false): string
+        {
+            if ($num_bytes === 0 || $num_bytes < 0)
+                return '';
+            $buf = '';
+            $remaining = $num_bytes;
+            while ($remaining > 0 && !feof($stream))
+            {
+                /** @var string $read */
+                $read = fread($stream, $remaining);
+
+                if (!is_string($read))
+                {
+                    throw new OpenStreamException('Could not read from the file');
+                }
+
+                $buf .= $read;
+                $remaining -= self::ourStrlen($read);
+            }
+            if (self::ourStrlen($buf) !== $num_bytes && $end_of_file_check)
+                throw new OpenStreamException('Tried to read past the end of the file');
+            return $buf;
         }
     }
