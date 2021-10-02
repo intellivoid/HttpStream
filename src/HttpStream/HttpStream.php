@@ -272,7 +272,7 @@
          * @noinspection DuplicatedCode
          * @noinspection PhpRedundantVariableDocTypeInspection
          */
-        private function start_stream($out_resource=null)
+        public function start_stream($out_resource=null)
         {
             $write_to_resource = false;
 
