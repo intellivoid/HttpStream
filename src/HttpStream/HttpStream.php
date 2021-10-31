@@ -610,7 +610,7 @@
             if($include_headers)
             {
                 http_response_code($headers->ResponseCode);
-                foreach($headers as $header => $header_value)
+                foreach($headers->ResponseHeaders as $header => $header_value)
                 {
                     header("$header: $header_value");
                 }
