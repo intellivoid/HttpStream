@@ -93,6 +93,11 @@
         private bool $encrypted;
 
         /**
+         * @var bool
+         */
+        private bool $detect_mime;
+
+        /**
          * @param string $location
          * @param bool $encrypted
          * @param bool $use_password
@@ -156,7 +161,8 @@
         {
             $HttpResponse = new HttpResponse();
 
-            $HttpResponse->ResponseHeaders['Content-Type'] = Utilities::getContentType($this);
+            if($this->detect_mime)
+                $HttpResponse->ResponseHeaders['Content-Type'] = Utilities::getContentType($this);
             $HttpResponse->ResponseHeaders['Accept-Ranges'] = '0-' . $this->end;
             $HttpResponse->ResponseHeaders['Content-Range'] = 'bytes ' . $this->start . '-' . $this->end . '/' . $this->size;
 
@@ -667,9 +673,10 @@
          * @noinspection PhpDocMissingThrowsInspection
          * @noinspection PhpUnhandledExceptionInspection
          */
-        public static function streamToHttp(string $location, bool $as_attachment=false)
+        public static function streamToHttp(string $location, bool $as_attachment=false, bool $detect_mime=true)
         {
             $HttpStream = new HttpStream($location);
+            $HttpStream->setDetectMime($detect_mime);
             $HttpStream->stream(true, $as_attachment);
         }
 
@@ -688,9 +695,10 @@
          * @throws UnsupportedStreamException
          * @throws WrongKeyOrModifiedCiphertextException
          */
-        public static function streamEncryptedToHttp(string $location, bool $use_password, $encryption_key, bool $as_attachment=false)
+        public static function streamEncryptedToHttp(string $location, bool $use_password, $encryption_key, bool $as_attachment=false, $detect_mime=true)
         {
             $HttpStream = new HttpStream($location, true, $use_password, $encryption_key);
+            $HttpStream->setDetectMime($detect_mime);
             $HttpStream->stream(true, $as_attachment);
         }
 
@@ -765,5 +773,21 @@
         {
             $HttpStream = new HttpStream($location, true, $use_password, $encryption_key);
             $HttpStream->streamResource($resource);
+        }
+
+        /**
+         * @return bool
+         */
+        public function isDetectMime(): bool
+        {
+            return $this->detect_mime;
+        }
+
+        /**
+         * @param bool $detect_mime
+         */
+        public function setDetectMime(bool $detect_mime): void
+        {
+            $this->detect_mime = $detect_mime;
         }
     }
