@@ -90,12 +90,12 @@
         /**
          * @var bool
          */
-        private bool $encrypted;
+        private $encrypted;
 
         /**
          * @var bool
          */
-        private bool $detect_mime;
+        private $detect_mime;
 
         /**
          * @param string $location
